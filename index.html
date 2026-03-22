@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Happy Addition Garden</title>
+    <title>Isha Learning Games</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,6 +15,15 @@
   <body>
     <main class="app-shell">
       <section class="game-card">
+        <section class="mode-switcher" aria-label="Choose a game">
+          <button class="mode-button is-active" id="additionModeButton" type="button">
+            Addition Garden
+          </button>
+          <button class="mode-button" id="wordModeButton" type="button">
+            Missing Letter Safari
+          </button>
+        </section>
+
         <section class="surprise-card" aria-labelledby="surpriseTitle">
           <div>
             <p class="eyebrow">Fun surprise</p>
@@ -27,13 +36,13 @@
         <section class="main-panel">
           <div class="left-panel">
             <header class="top-copy">
-              <p class="eyebrow">Ages 5 and up</p>
-              <h1>Happy Addition Garden</h1>
-              <p class="intro">Five levels. Ten questions each. One screen. Keyboard only.</p>
+              <p class="eyebrow" id="heroEyebrow">Ages 5 and up</p>
+              <h1 id="gameTitle">Happy Addition Garden</h1>
+              <p class="intro" id="gameIntro">Five levels. Ten questions each. One screen. Keyboard only.</p>
               <div class="hero-tags">
-                <span class="hero-tag">Playful</span>
-                <span class="hero-tag">Keyboard-first</span>
-                <span class="hero-tag">5 stages</span>
+                <span class="hero-tag" id="heroTagOne">Playful</span>
+                <span class="hero-tag" id="heroTagTwo">Keyboard-first</span>
+                <span class="hero-tag" id="heroTagThree">5 stages</span>
               </div>
             </header>
 
@@ -63,11 +72,20 @@
             </section>
 
             <section class="question-card" aria-labelledby="questionPrompt">
-              <p class="question-tag">Addition time</p>
+              <p class="question-tag" id="questionTag">Addition time</p>
               <h2 id="questionPrompt">2 + 3 = ?</h2>
               <p class="question-help" id="questionHelp">
                 Type the answer with number keys, then press Enter.
               </p>
+
+              <section class="picture-card is-hidden" id="pictureCard" aria-live="polite">
+                <div class="picture-art" id="pictureArt" aria-hidden="true">🐀</div>
+                <div class="picture-copy">
+                  <p class="picture-label">Picture clue</p>
+                  <strong id="pictureWord">_AT</strong>
+                  <p id="pictureHint">Look at the picture and fill in the missing first letter.</p>
+                </div>
+              </section>
 
               <div class="story-row">
                 <div class="story-bubble story-bubble-pink" id="firstGroupText">2 pink flowers</div>
@@ -78,17 +96,7 @@
 
               <div class="answer-board">
                 <div class="answer-display" id="answerDisplay" aria-live="polite">Type the answer</div>
-                <div class="digit-grid" aria-label="Keyboard digits">
-                  <div class="digit-key">1</div>
-                  <div class="digit-key">2</div>
-                  <div class="digit-key">3</div>
-                  <div class="digit-key">4</div>
-                  <div class="digit-key">5</div>
-                  <div class="digit-key">6</div>
-                  <div class="digit-key">7</div>
-                  <div class="digit-key">8</div>
-                  <div class="digit-key">9</div>
-                  <div class="digit-key digit-key-wide">0</div>
+                <div class="digit-grid" id="inputGrid" aria-label="On-screen keyboard">
                 </div>
               </div>
 
