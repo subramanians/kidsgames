@@ -6,12 +6,16 @@ const heroTagTwo = document.getElementById("heroTagTwo");
 const heroTagThree = document.getElementById("heroTagThree");
 
 const starCount = document.getElementById("starCount");
+const streakCount = document.getElementById("streakCount");
 const levelLabel = document.getElementById("levelLabel");
 const questionCountLabel = document.getElementById("questionCountLabel");
 const stageName = document.getElementById("stageName");
 const stagePrompt = document.getElementById("stagePrompt");
 const rewardChip = document.getElementById("rewardChip");
 const characterChip = document.getElementById("characterChip");
+const missionTitle = document.getElementById("missionTitle");
+const missionText = document.getElementById("missionText");
+const rewardShelf = document.getElementById("rewardShelf");
 const mapEyebrow = document.getElementById("mapEyebrow");
 const mapTitle = document.getElementById("mapTitle");
 const mapText = document.getElementById("mapText");
@@ -43,6 +47,7 @@ const additionModeButton = document.getElementById("additionModeButton");
 const wordModeButton = document.getElementById("wordModeButton");
 
 const QUESTIONS_PER_LEVEL = 10;
+const LEVEL_MILESTONES = [3, 6, 9];
 const LETTER_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 const additionScenes = [
   { first: "pink flowers", second: "yellow flowers" },
@@ -73,13 +78,21 @@ function shuffle(items) {
 }
 
 function makeWordQuestion(entry) {
+  const missingIndex = randomInt(0, entry.word.length - 1);
+  const slotNames = ["first", "middle", "last"];
+  const letters = entry.word.toUpperCase().split("");
+  const answer = letters[missingIndex];
+  letters[missingIndex] = "_";
+
   return {
     word: entry.word.toUpperCase(),
     image: entry.image,
     clue: entry.clue,
     hint: entry.hint,
-    answer: entry.word[0].toUpperCase(),
-    promptWord: `_${entry.word.slice(1).toUpperCase()}`,
+    answer,
+    promptWord: letters.join(""),
+    missingIndex,
+    slotName: slotNames[missingIndex],
   };
 }
 
@@ -96,8 +109,19 @@ function buildAdditionQuestionPool(level) {
       pool.push({
         a,
         b,
+        total: answer,
         answer,
         scene: randomItem(additionScenes),
+        kind: "total",
+      });
+
+      pool.push({
+        a,
+        b,
+        total: answer,
+        answer: b,
+        scene: randomItem(additionScenes),
+        kind: "missing-second",
       });
     }
   }
@@ -368,12 +392,19 @@ const modes = {
       questionHelp.textContent = "Type the answer with number keys, then press Enter.";
       firstGroupText.textContent = `${current.a} ${current.scene.first}`;
       secondGroupText.textContent = `${current.b} ${current.scene.second}`;
+      if (current.kind === "missing-second") {
+        questionPrompt.textContent = `${current.a} + ? = ${current.total}`;
+        questionHelp.textContent = "Type the missing number that completes the sum.";
+      }
       answerDisplay.textContent = typedAnswer === "" ? this.theme.placeholder : typedAnswer;
     },
     isCorrect(current, typedAnswer) {
       return Number(typedAnswer) === current.answer;
     },
     successMessage(current) {
+      if (current.kind === "missing-second") {
+        return `Yes! ${current.a} + ${current.answer} = ${current.total}.`;
+      }
       return `Great job, Isha! ${current.a} + ${current.b} = ${current.answer}.`;
     },
   },
@@ -410,9 +441,9 @@ const modes = {
       pictureArt.textContent = current.image;
       pictureWord.textContent = current.promptWord;
       pictureHint.textContent = current.hint;
-      questionPrompt.textContent = `Which letter makes ${current.promptWord}?`;
-      questionHelp.textContent = "Type the missing first letter, then press Enter.";
-      firstGroupText.textContent = `Missing word: ${current.promptWord}`;
+      questionPrompt.textContent = `Which ${current.slotName} letter makes ${current.promptWord}?`;
+      questionHelp.textContent = `Type the missing ${current.slotName} letter, then press Enter.`;
+      firstGroupText.textContent = `Word puzzle: ${current.promptWord}`;
       secondGroupText.textContent = `Clue: ${current.clue}`;
       answerDisplay.textContent = typedAnswer === "" ? this.theme.placeholder : typedAnswer;
     },
@@ -420,7 +451,7 @@ const modes = {
       return typedAnswer.toUpperCase() === current.answer;
     },
     successMessage(current) {
-      return `Yes! ${current.answer}${current.word.slice(1).toLowerCase()} starts with ${current.answer}.`;
+      return `Yes! ${current.word} has ${current.answer} in the ${current.slotName} spot.`;
     },
   },
 };
@@ -432,6 +463,7 @@ const game = {
   questionQueue: [],
   typedAnswer: "",
   stars: 0,
+  streak: 0,
   correctInLevel: 0,
   totalCorrect: 0,
   autoAdvanceId: null,
@@ -459,6 +491,33 @@ function setFeedback(message, tone = "") {
   if (tone) {
     feedbackCard.classList.add(tone);
   }
+}
+
+function renderRewardShelf() {
+  rewardShelf.textContent = "";
+  LEVEL_MILESTONES.forEach((milestone, index) => {
+    const orb = document.createElement("div");
+    orb.className = "reward-orb";
+    if (game.correctInLevel >= milestone) {
+      orb.classList.add("is-on");
+    }
+    orb.textContent = ["🎁", "🏅", "👑"][index];
+    rewardShelf.appendChild(orb);
+  });
+}
+
+function renderMission() {
+  const nextMilestone = LEVEL_MILESTONES.find((milestone) => game.correctInLevel < milestone);
+  if (!nextMilestone) {
+    missionTitle.textContent = "Prize shelf complete";
+    missionText.textContent = "All three mini rewards are glowing. Finish the level to unlock the big prize.";
+    renderRewardShelf();
+    return;
+  }
+
+  missionTitle.textContent = `Reach ${nextMilestone} correct answers`;
+  missionText.textContent = `Current streak: ${game.streak}. The next shelf reward lights up at ${nextMilestone}.`;
+  renderRewardShelf();
 }
 
 function showSurprise(type) {
@@ -538,6 +597,7 @@ function renderTopCards() {
     questionCountLabel.textContent = `${QUESTIONS_PER_LEVEL}/${QUESTIONS_PER_LEVEL}`;
   }
   starCount.textContent = String(game.stars);
+  streakCount.textContent = String(game.streak);
   progressLabel.textContent = `${game.correctInLevel} of ${QUESTIONS_PER_LEVEL} right`;
   progressSubtext.textContent =
     game.levelIndex === mode.levels.length - 1 ? mode.theme.progressFinal : mode.theme.progressDefault;
@@ -581,6 +641,7 @@ function renderAll() {
   buildInputGrid();
   updatePathMarks();
   updateRunnerPosition();
+  renderMission();
 }
 
 function makeLevelQuestion() {
@@ -664,6 +725,7 @@ function checkAnswer() {
   if (currentMode().isCorrect(game.current, game.typedAnswer)) {
     clearAutoAdvance();
     game.stars += 1;
+    game.streak += 1;
     game.correctInLevel += 1;
     game.totalCorrect += 1;
     showSurprise("correct");
@@ -683,7 +745,9 @@ function checkAnswer() {
     return;
   }
 
+  game.streak = 0;
   setFeedback(currentMode().theme.retryMessage, "is-try");
+  renderMission();
 }
 
 function resetMode(modeName) {
@@ -694,6 +758,7 @@ function resetMode(modeName) {
   game.questionQueue = currentMode().createQueue(currentLevel());
   game.typedAnswer = "";
   game.stars = 0;
+  game.streak = 0;
   game.correctInLevel = 0;
   game.totalCorrect = 0;
   game.finished = false;

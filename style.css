@@ -130,6 +130,7 @@ body.celebrate .surprise-emoji {
 .map-panel,
 .status-pill,
 .level-card,
+.mission-card,
 .question-card,
 .progress-card {
   border: 1px solid var(--line);
@@ -286,7 +287,7 @@ h3 {
 
 .status-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -310,6 +311,51 @@ h3 {
   padding: 12px 14px;
   background:
     linear-gradient(135deg, rgba(230, 248, 239, 0.72), rgba(255, 255, 255, 0.86));
+}
+
+.mission-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  background:
+    radial-gradient(circle at top right, rgba(103, 184, 255, 0.18), transparent 24%),
+    linear-gradient(135deg, rgba(244, 250, 255, 0.95), rgba(255, 249, 234, 0.92));
+}
+
+.mission-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.reward-shelf {
+  display: grid;
+  grid-template-columns: repeat(3, 42px);
+  gap: 8px;
+}
+
+.reward-orb {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(25, 33, 47, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 -4px 10px rgba(43, 66, 107, 0.06);
+  font-size: 1.15rem;
+  opacity: 0.45;
+  transform: scale(0.96);
+  transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
+}
+
+.reward-orb.is-on {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow:
+    inset 0 -4px 10px rgba(43, 66, 107, 0.06),
+    0 10px 20px rgba(255, 180, 75, 0.22);
 }
 
 .reward-chip,
@@ -709,6 +755,7 @@ body[data-mode="word"] .digit-key {
   }
 
   .level-card,
+  .mission-card,
   .question-card {
     gap: 8px;
   }
@@ -734,7 +781,66 @@ body[data-mode="word"] .digit-key {
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
+  body {
+    overflow: hidden;
+  }
+
+  .app-shell {
+    padding: 8px;
+  }
+
+  .game-card {
+    width: 100%;
+    height: calc(100vh - 16px);
+    gap: 8px;
+  }
+
+  .main-panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) 180px;
+  }
+
+  .left-panel {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .map-panel {
+    grid-template-columns: minmax(0, 1fr) 160px;
+    grid-template-rows: auto 1fr;
+    padding: 12px;
+  }
+
+  .map-frame {
+    min-height: 0;
+  }
+
+  .progress-card {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-content: center;
+  }
+
+  .status-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .mission-card,
+  .level-card {
+    grid-template-columns: 1fr;
+  }
+
+  .question-card {
+    padding: 12px;
+  }
+
+  .picture-art {
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 901px) {
   body {
     overflow: auto;
   }
@@ -753,6 +859,10 @@ body[data-mode="word"] .digit-key {
 }
 
 @media (max-width: 720px) {
+  body {
+    overflow: hidden;
+  }
+
   .mode-switcher {
     width: 100%;
     display: grid;
@@ -765,8 +875,27 @@ body[data-mode="word"] .digit-key {
   }
 
   .level-card,
+  .mission-card,
   .picture-card {
     grid-template-columns: 1fr;
+  }
+
+  .status-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-panel {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 120px auto;
+  }
+
+  .progress-card {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+  .map-frame {
+    min-height: 120px;
   }
 
   .digit-grid.is-letter-grid {
