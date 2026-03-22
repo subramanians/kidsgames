@@ -17,10 +17,13 @@
       <section class="game-card">
         <section class="mode-switcher" aria-label="Choose a game">
           <button class="mode-button is-active" id="additionModeButton" type="button">
-            Addition Garden
+            Math Quest
           </button>
           <button class="mode-button" id="wordModeButton" type="button">
-            Missing Letter Safari
+            Reading Safari
+          </button>
+          <button class="mode-button mode-button-home" id="homeButton" type="button">
+            World Map
           </button>
         </section>
 
@@ -56,7 +59,7 @@
                 <strong id="streakCount">0</strong>
               </article>
               <article class="status-pill">
-                <span class="status-label">Level</span>
+                <span class="status-label">World</span>
                 <strong id="levelLabel">1</strong>
               </article>
               <article class="status-pill">
@@ -85,45 +88,69 @@
             </section>
 
             <section class="question-card" aria-labelledby="questionPrompt">
-              <p class="question-tag" id="questionTag">Addition time</p>
-              <h2 id="questionPrompt">2 + 3 = ?</h2>
-              <p class="question-help" id="questionHelp">
-                Type the answer with number keys, then press Enter.
-              </p>
-
-              <section class="picture-card is-hidden" id="pictureCard" aria-live="polite">
-                <div class="picture-art" id="pictureArt" aria-hidden="true">🐀</div>
-                <div class="picture-copy">
-                  <p class="picture-label">Picture clue</p>
-                  <strong id="pictureWord">_AT</strong>
-                  <p id="pictureHint">Look at the picture and fill in the missing first letter.</p>
+              <section class="home-view" id="homeView" aria-labelledby="homeViewTitle">
+                <div class="home-copy">
+                  <p class="question-tag">Choose a world</p>
+                  <h2 id="homeViewTitle">Pick Isha’s next adventure</h2>
+                  <p class="question-help" id="homeViewText">
+                    Finish worlds to unlock new games, new rewards, and bigger surprises.
+                  </p>
                 </div>
+                <div class="world-grid" id="worldGrid" aria-live="polite"></div>
               </section>
 
-              <div class="story-row">
-                <div class="story-bubble story-bubble-pink" id="firstGroupText">2 pink flowers</div>
-                <div class="story-bubble story-bubble-yellow" id="secondGroupText">
-                  3 yellow flowers
+              <section class="play-view is-hidden" id="playView">
+                <p class="question-tag" id="questionTag">Addition time</p>
+                <h2 id="questionPrompt">2 + 3 = ?</h2>
+                <p class="question-help" id="questionHelp">
+                  Type the answer with number keys, then press Enter.
+                </p>
+
+                <section class="picture-card is-hidden" id="pictureCard" aria-live="polite">
+                  <div class="picture-art" id="pictureArt" aria-hidden="true">🐀</div>
+                  <div class="picture-copy">
+                    <p class="picture-label">Picture clue</p>
+                    <strong id="pictureWord">_AT</strong>
+                    <p id="pictureHint">Look at the picture and fill in the missing first letter.</p>
+                  </div>
+                </section>
+
+                <div class="story-row">
+                  <div class="story-bubble story-bubble-pink" id="firstGroupText">2 pink flowers</div>
+                  <div class="story-bubble story-bubble-yellow" id="secondGroupText">
+                    3 yellow flowers
+                  </div>
                 </div>
-              </div>
 
-              <div class="answer-board">
-                <div class="answer-display" id="answerDisplay" aria-live="polite">Type the answer</div>
-                <div class="digit-grid" id="inputGrid" aria-label="On-screen keyboard">
+                <section class="drag-board is-hidden" id="dragBoard" aria-labelledby="dragBoardTitle">
+                  <div class="drag-board-copy">
+                    <p class="picture-label">Count by dragging</p>
+                    <strong id="dragBoardTitle">Move every treasure into the chest.</strong>
+                  </div>
+                  <div class="drag-source" id="dragSource"></div>
+                  <div class="drop-zone" id="dropZone">
+                    <span id="dropZoneLabel">Treasure chest</span>
+                    <strong id="dropZoneCount">0</strong>
+                  </div>
+                </section>
+
+                <div class="answer-board">
+                  <div class="answer-display" id="answerDisplay" aria-live="polite">Type the answer</div>
+                  <div class="digit-grid" id="inputGrid" aria-label="On-screen keyboard"></div>
                 </div>
-              </div>
 
-              <div class="action-row">
-                <button class="action-button action-button-primary" id="checkAnswerButton">
-                  Check (Enter)
-                </button>
-                <button class="action-button" id="newQuestionButton">New Question (N)</button>
-                <button class="action-button" id="clearAnswerButton">Clear (Backspace)</button>
-              </div>
+                <div class="action-row">
+                  <button class="action-button action-button-primary" id="checkAnswerButton">
+                    Check
+                  </button>
+                  <button class="action-button" id="newQuestionButton">New Question</button>
+                  <button class="action-button" id="clearAnswerButton">Clear</button>
+                </div>
 
-              <div class="feedback-card" id="feedbackCard" aria-live="polite">
-                Let’s begin with level 1.
-              </div>
+                <div class="feedback-card" id="feedbackCard" aria-live="polite">
+                  Let’s begin with level 1.
+                </div>
+              </section>
             </section>
 
           </div>

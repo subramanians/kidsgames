@@ -19,6 +19,17 @@ const rewardShelf = document.getElementById("rewardShelf");
 const mapEyebrow = document.getElementById("mapEyebrow");
 const mapTitle = document.getElementById("mapTitle");
 const mapText = document.getElementById("mapText");
+const progressLabel = document.getElementById("progressLabel");
+const progressSubtext = document.getElementById("progressSubtext");
+const pathMarks = document.getElementById("pathMarks");
+const goalCarrot = document.getElementById("goalCarrot");
+const runnerRabbit = document.getElementById("runnerRabbit");
+
+const homeView = document.getElementById("homeView");
+const homeViewText = document.getElementById("homeViewText");
+const worldGrid = document.getElementById("worldGrid");
+const playView = document.getElementById("playView");
+
 const questionTag = document.getElementById("questionTag");
 const questionPrompt = document.getElementById("questionPrompt");
 const questionHelp = document.getElementById("questionHelp");
@@ -28,37 +39,232 @@ const pictureWord = document.getElementById("pictureWord");
 const pictureHint = document.getElementById("pictureHint");
 const firstGroupText = document.getElementById("firstGroupText");
 const secondGroupText = document.getElementById("secondGroupText");
+const dragBoard = document.getElementById("dragBoard");
+const dragSource = document.getElementById("dragSource");
+const dropZone = document.getElementById("dropZone");
+const dropZoneLabel = document.getElementById("dropZoneLabel");
+const dropZoneCount = document.getElementById("dropZoneCount");
 const answerDisplay = document.getElementById("answerDisplay");
 const inputGrid = document.getElementById("inputGrid");
 const feedbackCard = document.getElementById("feedbackCard");
+
 const surpriseEmoji = document.getElementById("surpriseEmoji");
 const surpriseTitle = document.getElementById("surpriseTitle");
 const surpriseText = document.getElementById("surpriseText");
-const pathMarks = document.getElementById("pathMarks");
-const goalCarrot = document.getElementById("goalCarrot");
-const runnerRabbit = document.getElementById("runnerRabbit");
-const progressLabel = document.getElementById("progressLabel");
-const progressSubtext = document.getElementById("progressSubtext");
 
+const additionModeButton = document.getElementById("additionModeButton");
+const wordModeButton = document.getElementById("wordModeButton");
+const homeButton = document.getElementById("homeButton");
 const checkAnswerButton = document.getElementById("checkAnswerButton");
 const newQuestionButton = document.getElementById("newQuestionButton");
 const clearAnswerButton = document.getElementById("clearAnswerButton");
-const additionModeButton = document.getElementById("additionModeButton");
-const wordModeButton = document.getElementById("wordModeButton");
 
-const QUESTIONS_PER_LEVEL = 10;
-const LEVEL_MILESTONES = [3, 6, 9];
+const QUESTIONS_PER_WORLD = 10;
+const QUEST_STEPS = [3, 6, 9];
 const LETTER_KEYS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-const additionScenes = [
-  { first: "pink flowers", second: "yellow flowers" },
-  { first: "sparkly stars", second: "moon pebbles" },
-  { first: "berry cupcakes", second: "apple cupcakes" },
-  { first: "rainbow balloons", second: "sun balloons" },
-  { first: "shell treasures", second: "pearl treasures" },
-  { first: "garden bugs", second: "leaf bugs" },
-  { first: "tiny kites", second: "striped kites" },
-  { first: "magic gems", second: "river gems" },
+const SOUND_SET = [
+  { word: "cat", image: "🐱", clue: "Soft pet with whiskers" },
+  { word: "dog", image: "🐶", clue: "Happy pet that barks" },
+  { word: "sun", image: "☀️", clue: "Bright in the sky" },
+  { word: "log", image: "🪵", clue: "Piece of a tree trunk" },
+  { word: "bed", image: "🛏️", clue: "Where you sleep" },
+  { word: "van", image: "🚐", clue: "Big family car" },
+  { word: "fox", image: "🦊", clue: "Clever forest animal" },
+  { word: "jet", image: "✈️", clue: "Fast plane" },
+  { word: "map", image: "🗺️", clue: "Helps you find a place" },
+  { word: "pen", image: "🖊️", clue: "Tool for writing" },
 ];
+const MISSING_SET = [
+  { word: "rat", image: "🐀", clue: "Small gray animal", hint: "Look and say the whole word slowly." },
+  { word: "pig", image: "🐷", clue: "Pink farm animal", hint: "Listen for the missing sound." },
+  { word: "owl", image: "🦉", clue: "Bird awake at night", hint: "One letter is hiding." },
+  { word: "mud", image: "🟫", clue: "Wet brown ground", hint: "Find the missing letter spot." },
+  { word: "key", image: "🔑", clue: "It opens a lock", hint: "Say the word and fill the gap." },
+  { word: "cup", image: "🥤", clue: "Something you drink from", hint: "The missing letter completes the word." },
+  { word: "yak", image: "🐂", clue: "Big furry animal", hint: "Listen to the whole word." },
+  { word: "zip", image: "🤐", clue: "Close a jacket", hint: "One letter belongs in the blank." },
+  { word: "pan", image: "🍳", clue: "You cook with it", hint: "Which letter fits?" },
+  { word: "ice", image: "🧊", clue: "Frozen water", hint: "Fill the missing sound." },
+];
+const MIX_SET = [
+  { word: "hen", image: "🐔", clue: "Farm bird with feathers", hint: "Find the hidden letter." },
+  { word: "oak", image: "🌳", clue: "A big strong tree", hint: "Say the word and spot the gap." },
+  { word: "box", image: "📦", clue: "Square package", hint: "One letter is missing." },
+  { word: "jam", image: "🍓", clue: "Sweet spread", hint: "Fill the blank." },
+  { word: "run", image: "🏃", clue: "Move fast with your feet", hint: "Say it out loud." },
+  { word: "bus", image: "🚌", clue: "Big road vehicle", hint: "Which sound is hiding?" },
+  { word: "web", image: "🕸️", clue: "Spider home", hint: "Listen carefully." },
+  { word: "lid", image: "🥫", clue: "Top of a jar or cup", hint: "One letter completes it." },
+  { word: "nut", image: "🥜", clue: "Crunchy snack", hint: "Spot the missing sound." },
+  { word: "ram", image: "🐏", clue: "Animal with curly horns", hint: "Guess the hidden letter." },
+];
+const ADDITION_SCENES = [
+  { first: "pink flowers", second: "yellow flowers", tokenA: "🌸", tokenB: "🌼", container: "Garden basket" },
+  { first: "sparkly stars", second: "moon pebbles", tokenA: "⭐", tokenB: "🌙", container: "Night jar" },
+  { first: "berry cupcakes", second: "apple cupcakes", tokenA: "🧁", tokenB: "🍎", container: "Party tray" },
+  { first: "rainbow balloons", second: "sun balloons", tokenA: "🎈", tokenB: "☀️", container: "Sky bundle" },
+  { first: "shell treasures", second: "pearl treasures", tokenA: "🐚", tokenB: "🫧", container: "Treasure chest" },
+];
+
+const modeThemes = {
+  math: {
+    title: "Math Quest",
+    intro: "Three mini-games, quick rewards, and brighter math worlds for Isha.",
+    eyebrow: "Fast playful math",
+    tags: ["3 worlds", "Count and drag", "Unlock prizes"],
+    homeText: "Start with Flower Sums, then unlock missing-number and drag-count worlds.",
+  },
+  reading: {
+    title: "Reading Safari",
+    intro: "Picture words, sound matching, and little reading quests that change each round.",
+    eyebrow: "Early reading play",
+    tags: ["3 worlds", "Sound match", "Word puzzles"],
+    homeText: "Start with missing letters, then unlock sound matching and a mixed challenge trail.",
+  },
+};
+
+const worlds = {
+  math: [
+    {
+      id: "flower-sums",
+      index: 1,
+      unlockStars: 0,
+      title: "Flower Sums",
+      subtitle: "Classic addition with bright story objects.",
+      icon: "🌸",
+      reward: "Berry Badge",
+      character: "Chick Pip",
+      mapEyebrow: "Sum path",
+      mapTitle: "Garden to Egg",
+      mapText: "Each right answer moves Pip one step higher.",
+      runnerEmoji: "🐥",
+      goalEmoji: "🥚",
+      questionTag: "Quick sums",
+      promptText: "Type the total with the keyboard.",
+      makeQueue() {
+        return buildMathQueue("total", 0, 9, 0, 6, 0, 5);
+      },
+    },
+    {
+      id: "missing-number",
+      index: 2,
+      unlockStars: 8,
+      title: "Find the Missing Number",
+      subtitle: "Work backward and complete the sum.",
+      icon: "🔎",
+      reward: "Lantern Ribbon",
+      character: "Fiona Fox",
+      mapEyebrow: "Puzzle path",
+      mapTitle: "Forest to Lantern",
+      mapText: "Fiona lights a new lantern for each smart guess.",
+      runnerEmoji: "🦊",
+      goalEmoji: "🏮",
+      questionTag: "Missing number",
+      promptText: "Type the number that completes the sum.",
+      makeQueue() {
+        return buildMathQueue("missing", 4, 14, 1, 9, 1, 8);
+      },
+    },
+    {
+      id: "drag-count",
+      index: 3,
+      unlockStars: 18,
+      title: "Treasure Drag Count",
+      subtitle: "Drag every item into the chest to count the full group.",
+      icon: "🧺",
+      reward: "Golden Scoop",
+      character: "Luna Lamb",
+      mapEyebrow: "Treasure path",
+      mapTitle: "Chest to Trophy",
+      mapText: "Luna collects every treasure token on the climb.",
+      runnerEmoji: "🐑",
+      goalEmoji: "🏆",
+      questionTag: "Drag and count",
+      promptText: "Drag every treasure into the chest, then check the count.",
+      makeQueue() {
+        return buildDragQueue();
+      },
+    },
+  ],
+  reading: [
+    {
+      id: "missing-letter",
+      index: 1,
+      unlockStars: 0,
+      title: "Missing Letter Trail",
+      subtitle: "Fill the missing first, middle, or last letter.",
+      icon: "🔤",
+      reward: "Paw Print Ribbon",
+      character: "Rory Raccoon",
+      mapEyebrow: "Letter path",
+      mapTitle: "Trail to Treehouse",
+      mapText: "Rory climbs with every finished word.",
+      runnerEmoji: "🦝",
+      goalEmoji: "🌳",
+      questionTag: "Word puzzle",
+      promptText: "Type the missing letter.",
+      makeQueue() {
+        return buildMissingLetterQueue(MISSING_SET);
+      },
+    },
+    {
+      id: "sound-match",
+      index: 2,
+      unlockStars: 8,
+      title: "Sound Match",
+      subtitle: "Hear the start sound in your head and tap the right letter.",
+      icon: "🎧",
+      reward: "Cloud Sticker",
+      character: "Sunny Sparrow",
+      mapEyebrow: "Sound path",
+      mapTitle: "Sky to Rainbow",
+      mapText: "Sunny swoops to the rainbow with each sound match.",
+      runnerEmoji: "🐦",
+      goalEmoji: "🌈",
+      questionTag: "Sound match",
+      promptText: "Tap the letter that matches the starting sound.",
+      makeQueue() {
+        return buildSoundQueue(SOUND_SET);
+      },
+    },
+    {
+      id: "mixed-safari",
+      index: 3,
+      unlockStars: 18,
+      title: "Mixed Safari",
+      subtitle: "A changing trail with missing letters and sound matching together.",
+      icon: "🗺️",
+      reward: "Alphabet Crown",
+      character: "Zara Zebra",
+      mapEyebrow: "Safari path",
+      mapTitle: "Savanna to Crown",
+      mapText: "Zara races through every reading challenge to the crown.",
+      runnerEmoji: "🦓",
+      goalEmoji: "👑",
+      questionTag: "Mixed reading",
+      promptText: "Watch for the puzzle type and solve it fast.",
+      makeQueue() {
+        return buildMixedReadingQueue(MIX_SET);
+      },
+    },
+  ],
+};
+
+const game = {
+  mode: "math",
+  currentWorldId: null,
+  currentQuestion: null,
+  queue: [],
+  typedAnswer: "",
+  stars: 0,
+  streak: 0,
+  correct: 0,
+  finished: false,
+  autoAdvanceId: null,
+  movedTokenIds: new Set(),
+  worldStats: {},
+  audioContext: null,
+};
 
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -77,405 +283,19 @@ function shuffle(items) {
   return copy;
 }
 
-function makeWordQuestion(entry) {
-  const missingIndex = randomInt(0, entry.word.length - 1);
-  const slotNames = ["first", "middle", "last"];
-  const letters = entry.word.toUpperCase().split("");
-  const answer = letters[missingIndex];
-  letters[missingIndex] = "_";
-
-  return {
-    word: entry.word.toUpperCase(),
-    image: entry.image,
-    clue: entry.clue,
-    hint: entry.hint,
-    answer,
-    promptWord: letters.join(""),
-    missingIndex,
-    slotName: slotNames[missingIndex],
-  };
+function getModeWorlds() {
+  return worlds[game.mode];
 }
 
-function buildAdditionQuestionPool(level) {
-  const pool = [];
+function getCurrentWorld() {
+  return getModeWorlds().find((world) => world.id === game.currentWorldId) || null;
+}
 
-  for (let a = level.minA; a <= level.maxA; a += 1) {
-    for (let b = level.minB; b <= level.maxB; b += 1) {
-      const answer = a + b;
-      if (answer < level.minSum || answer > level.maxSum) {
-        continue;
-      }
-
-      pool.push({
-        a,
-        b,
-        total: answer,
-        answer,
-        scene: randomItem(additionScenes),
-        kind: "total",
-      });
-
-      pool.push({
-        a,
-        b,
-        total: answer,
-        answer: b,
-        scene: randomItem(additionScenes),
-        kind: "missing-second",
-      });
-    }
+function ensureWorldStats(worldId) {
+  if (!game.worldStats[worldId]) {
+    game.worldStats[worldId] = { completed: false, best: 0 };
   }
-
-  return shuffle(pool);
-}
-
-const additionLevels = [
-  {
-    name: "Level 1: Bunny Meadow",
-    prompt: "Very easy sums from 0 to 4.",
-    character: "Chick Pip",
-    reward: "Berry Badge",
-    mapEyebrow: "Chick path",
-    mapTitle: "Chick to Egg",
-    mapText: "Pip climbs from the grass to the shiny egg.",
-    runnerEmoji: "🐥",
-    goalEmoji: "🥚",
-    minSum: 0,
-    maxSum: 4,
-    minA: 0,
-    maxA: 3,
-    minB: 0,
-    maxB: 3,
-    surprise: {
-      emoji: "🐥",
-      title: "Chick Pip is cheering!",
-      text: "Pip chirps for every right answer in Bunny Meadow.",
-    },
-  },
-  {
-    name: "Level 2: Butterfly Brook",
-    prompt: "Now the sums grow to 5, 6, and 7.",
-    character: "Bella Butterfly",
-    reward: "Flower Crown",
-    mapEyebrow: "Butterfly path",
-    mapTitle: "Butterfly to Flower",
-    mapText: "Bella flutters upward to the bright flower crown.",
-    runnerEmoji: "🦋",
-    goalEmoji: "🌼",
-    minSum: 5,
-    maxSum: 7,
-    minA: 1,
-    maxA: 5,
-    minB: 1,
-    maxB: 5,
-    surprise: {
-      emoji: "🦋",
-      title: "Bella Butterfly danced!",
-      text: "Bella flutters in loops to celebrate a correct answer.",
-    },
-  },
-  {
-    name: "Level 3: Turtle Trail",
-    prompt: "These sums land between 8 and 10.",
-    character: "Toby Turtle",
-    reward: "Leaf Medal",
-    mapEyebrow: "Turtle path",
-    mapTitle: "Turtle to Pond",
-    mapText: "Toby walks up the trail toward the pond lily prize.",
-    runnerEmoji: "🐢",
-    goalEmoji: "🪷",
-    minSum: 8,
-    maxSum: 10,
-    minA: 2,
-    maxA: 7,
-    minB: 2,
-    maxB: 7,
-    surprise: {
-      emoji: "🐢",
-      title: "Toby Turtle nodded!",
-      text: "Slow and steady counting is working beautifully.",
-    },
-  },
-  {
-    name: "Level 4: Fox Forest",
-    prompt: "These harder sums reach 11 to 13.",
-    character: "Fiona Fox",
-    reward: "Sparkle Lantern",
-    mapEyebrow: "Fox path",
-    mapTitle: "Fox to Lantern",
-    mapText: "Fiona dashes through the forest toward the sparkle lantern.",
-    runnerEmoji: "🦊",
-    goalEmoji: "🏮",
-    minSum: 11,
-    maxSum: 13,
-    minA: 3,
-    maxA: 9,
-    minB: 3,
-    maxB: 8,
-    surprise: {
-      emoji: "🦊",
-      title: "Fiona Fox twirled!",
-      text: "That was a sharp answer. Fiona noticed right away.",
-    },
-  },
-  {
-    name: "Level 5: Moon Carrot Mountain",
-    prompt: "Final stage: sums from 14 to 17.",
-    character: "Luna Lamb",
-    reward: "Golden Carrot Cup",
-    mapEyebrow: "Lamb path",
-    mapTitle: "Lamb to Trophy",
-    mapText: "Luna climbs the moon path to the golden carrot trophy.",
-    runnerEmoji: "🐑",
-    goalEmoji: "🏆",
-    minSum: 14,
-    maxSum: 17,
-    minA: 5,
-    maxA: 10,
-    minB: 4,
-    maxB: 9,
-    surprise: {
-      emoji: "🐑",
-      title: "Luna Lamb sparkled!",
-      text: "Only a strong little mathematician reaches this high.",
-    },
-  },
-];
-
-const wordLevels = [
-  {
-    name: "Level 1: Animal Trail",
-    prompt: "Start with simple animal words and their first letters.",
-    character: "Rory Raccoon",
-    reward: "Paw Print Ribbon",
-    mapEyebrow: "Safari path",
-    mapTitle: "Raccoon to Treehouse",
-    mapText: "Rory climbs branch by branch with each right letter.",
-    runnerEmoji: "🦝",
-    goalEmoji: "🌳",
-    surprise: {
-      emoji: "🦝",
-      title: "Rory found the clue!",
-      text: "Picture clues make letter sounds easier to spot.",
-    },
-    words: [
-      { word: "rat", image: "🐀", clue: "Small gray animal", hint: "Say the word slowly: rat." },
-      { word: "cat", image: "🐱", clue: "Soft pet with whiskers", hint: "Listen for the first sound in cat." },
-      { word: "dog", image: "🐶", clue: "Happy pet that barks", hint: "Which letter starts dog?" },
-      { word: "pig", image: "🐷", clue: "Pink farm animal", hint: "The missing letter is the first sound." },
-      { word: "hen", image: "🐔", clue: "Farm bird with feathers", hint: "Say hen. What do you hear first?" },
-      { word: "cow", image: "🐮", clue: "Farm animal that says moo", hint: "Listen for the first sound in cow." },
-      { word: "ant", image: "🐜", clue: "Tiny bug", hint: "Which letter starts ant?" },
-      { word: "owl", image: "🦉", clue: "Bird awake at night", hint: "Say owl. What sound comes first?" },
-      { word: "bat", image: "🦇", clue: "Animal that flies at night", hint: "Listen to the start of bat." },
-      { word: "ram", image: "🐏", clue: "Animal with curly horns", hint: "Which letter begins ram?" },
-    ],
-  },
-  {
-    name: "Level 2: Sky and Nature",
-    prompt: "Now match first letters with bright things from nature.",
-    character: "Sunny Sparrow",
-    reward: "Cloud Sticker",
-    mapEyebrow: "Sky path",
-    mapTitle: "Sparrow to Rainbow",
-    mapText: "Sunny flaps through the clouds toward a rainbow ribbon.",
-    runnerEmoji: "🐦",
-    goalEmoji: "🌈",
-    surprise: {
-      emoji: "🌤️",
-      title: "Sunny Sparrow swooped!",
-      text: "The picture and the word shape are working together.",
-    },
-    words: [
-      { word: "sun", image: "☀️", clue: "Bright in the sky", hint: "Sun starts with a hissing sound." },
-      { word: "sky", image: "🌤️", clue: "Blue space above us", hint: "What letter starts sky?" },
-      { word: "web", image: "🕸️", clue: "Spider home", hint: "Say web and find the first sound." },
-      { word: "mud", image: "🟫", clue: "Wet brown ground", hint: "Which letter begins mud?" },
-      { word: "log", image: "🪵", clue: "Piece of a tree trunk", hint: "Listen to the first sound in log." },
-      { word: "fog", image: "🌫️", clue: "Cloud close to the ground", hint: "Say fog and choose the first letter." },
-      { word: "dew", image: "💧", clue: "Tiny drops on grass", hint: "Which letter begins dew?" },
-      { word: "oak", image: "🌳", clue: "A big strong tree", hint: "Listen to the first sound in oak." },
-      { word: "bud", image: "🌷", clue: "Flower before it opens", hint: "What letter starts bud?" },
-      { word: "ice", image: "🧊", clue: "Frozen water", hint: "Listen to the first sound in ice." },
-    ],
-  },
-  {
-    name: "Level 3: Home and Play",
-    prompt: "These picture words are still short, but the sounds mix more.",
-    character: "Mimi Mouse",
-    reward: "Story Lamp",
-    mapEyebrow: "House path",
-    mapTitle: "Mouse to Window",
-    mapText: "Mimi tiptoes across the house to the glowing window star.",
-    runnerEmoji: "🐭",
-    goalEmoji: "🪟",
-    surprise: {
-      emoji: "✨",
-      title: "Mimi Mouse clapped!",
-      text: "Isha is spotting starting letters very quickly now.",
-    },
-    words: [
-      { word: "bed", image: "🛏️", clue: "Where you sleep", hint: "Bed begins with a bouncing sound." },
-      { word: "box", image: "📦", clue: "Square package", hint: "What letter starts box?" },
-      { word: "toy", image: "🧸", clue: "Something fun to play with", hint: "Listen to the first sound in toy." },
-      { word: "jam", image: "🍓", clue: "Sweet spread", hint: "Say jam and guess the first letter." },
-      { word: "van", image: "🚐", clue: "Big family car", hint: "Van starts with a gentle buzzing sound." },
-      { word: "cup", image: "🥤", clue: "Something you drink from", hint: "Which letter begins cup?" },
-      { word: "rug", image: "🧶", clue: "Soft mat on the floor", hint: "Say rug and listen to the first sound." },
-      { word: "key", image: "🔑", clue: "It opens a lock", hint: "What letter starts key?" },
-      { word: "pan", image: "🍳", clue: "You cook with it", hint: "Listen to the first sound in pan." },
-      { word: "lid", image: "🥫", clue: "Top of a jar or cup", hint: "Which letter begins lid?" },
-    ],
-  },
-  {
-    name: "Level 4: Clever Mix",
-    prompt: "Final stage: mixed picture words with fast first-letter choices.",
-    character: "Zara Zebra",
-    reward: "Alphabet Crown",
-    mapEyebrow: "Zebra path",
-    mapTitle: "Zebra to Crown",
-    mapText: "Zara trots to the alphabet crown at the finish line.",
-    runnerEmoji: "🦓",
-    goalEmoji: "👑",
-    surprise: {
-      emoji: "👑",
-      title: "Zara Zebra beamed!",
-      text: "Those first letters were quick, clear, and correct.",
-    },
-    words: [
-      { word: "yak", image: "🐂", clue: "Big furry animal", hint: "Yak starts with the y sound." },
-      { word: "zip", image: "🤐", clue: "Close a jacket", hint: "Which letter begins zip?" },
-      { word: "nut", image: "🥜", clue: "Small crunchy snack", hint: "Listen to the start of nut." },
-      { word: "cap", image: "🧢", clue: "Hat for your head", hint: "Cap begins with a hard c sound." },
-      { word: "run", image: "🏃", clue: "Move fast with your feet", hint: "Say run and pick the first letter." },
-      { word: "bus", image: "🚌", clue: "Big road vehicle", hint: "What letter starts bus?" },
-      { word: "pen", image: "🖊️", clue: "Tool for writing", hint: "Listen to the first sound in pen." },
-      { word: "map", image: "🗺️", clue: "Helps you find a place", hint: "Which letter begins map?" },
-      { word: "jet", image: "✈️", clue: "Fast plane", hint: "What letter begins jet?" },
-      { word: "fox", image: "🦊", clue: "Clever forest animal", hint: "Listen to the first sound in fox." },
-    ],
-  },
-];
-
-const modes = {
-  addition: {
-    theme: {
-      title: "Happy Addition Garden",
-      intro: "Five levels. Ten questions each. One screen. Keyboard only.",
-      eyebrow: "Ages 5 and up",
-      tags: ["Playful", "Keyboard-first", "5 stages"],
-      questionTag: "Addition time",
-      placeholder: "Type the answer",
-      clearMessage: "Answer cleared.",
-      emptyMessage: "Press number keys first.",
-      readyMessage: "Mission time. Solve the sum with the keyboard.",
-      retryMessage: "Nice try. Count both groups again and type the total.",
-      finishedMessage: "Amazing work. All five levels are complete.",
-      progressFinal: "Answer all 10 correctly to win the final trophy.",
-      progressDefault: "Answer all 10 correctly to unlock the next stage.",
-    },
-    levels: additionLevels,
-    inputType: "digits",
-    maxInputLength: 2,
-    createQueue(level) {
-      return buildAdditionQuestionPool(level);
-    },
-    createQuestion(level, queue) {
-      if (queue.length === 0) {
-        return buildAdditionQuestionPool(level).pop();
-      }
-      return queue.pop();
-    },
-    renderQuestion(current, typedAnswer) {
-      pictureCard.classList.add("is-hidden");
-      questionPrompt.textContent = `${current.a} + ${current.b} = ?`;
-      questionHelp.textContent = "Type the answer with number keys, then press Enter.";
-      firstGroupText.textContent = `${current.a} ${current.scene.first}`;
-      secondGroupText.textContent = `${current.b} ${current.scene.second}`;
-      if (current.kind === "missing-second") {
-        questionPrompt.textContent = `${current.a} + ? = ${current.total}`;
-        questionHelp.textContent = "Type the missing number that completes the sum.";
-      }
-      answerDisplay.textContent = typedAnswer === "" ? this.theme.placeholder : typedAnswer;
-    },
-    isCorrect(current, typedAnswer) {
-      return Number(typedAnswer) === current.answer;
-    },
-    successMessage(current) {
-      if (current.kind === "missing-second") {
-        return `Yes! ${current.a} + ${current.answer} = ${current.total}.`;
-      }
-      return `Great job, Isha! ${current.a} + ${current.b} = ${current.answer}.`;
-    },
-  },
-  word: {
-    theme: {
-      title: "Missing Letter Safari",
-      intro: "Picture clues, short words, and one missing first letter to guess.",
-      eyebrow: "Early reading game",
-      tags: ["Picture-first", "Phonics play", "4 stages"],
-      questionTag: "Guess the letter",
-      placeholder: "Type one letter",
-      clearMessage: "Letter cleared.",
-      emptyMessage: "Press one letter key first.",
-      readyMessage: "Picture mission. Say the word and catch the missing first letter.",
-      retryMessage: "Close one. Look at the picture again and listen for the first sound.",
-      finishedMessage: "Excellent reading. Every picture level is complete.",
-      progressFinal: "Finish all 10 picture words to earn the alphabet crown.",
-      progressDefault: "Answer all 10 picture words correctly to unlock the next stage.",
-    },
-    levels: wordLevels,
-    inputType: "letters",
-    maxInputLength: 1,
-    createQueue(level) {
-      return shuffle(level.words);
-    },
-    createQuestion(level, queue) {
-      if (queue.length === 0) {
-        return makeWordQuestion(randomItem(level.words));
-      }
-      return makeWordQuestion(queue.pop());
-    },
-    renderQuestion(current, typedAnswer) {
-      pictureCard.classList.remove("is-hidden");
-      pictureArt.textContent = current.image;
-      pictureWord.textContent = current.promptWord;
-      pictureHint.textContent = current.hint;
-      questionPrompt.textContent = `Which ${current.slotName} letter makes ${current.promptWord}?`;
-      questionHelp.textContent = `Type the missing ${current.slotName} letter, then press Enter.`;
-      firstGroupText.textContent = `Word puzzle: ${current.promptWord}`;
-      secondGroupText.textContent = `Clue: ${current.clue}`;
-      answerDisplay.textContent = typedAnswer === "" ? this.theme.placeholder : typedAnswer;
-    },
-    isCorrect(current, typedAnswer) {
-      return typedAnswer.toUpperCase() === current.answer;
-    },
-    successMessage(current) {
-      return `Yes! ${current.word} has ${current.answer} in the ${current.slotName} spot.`;
-    },
-  },
-};
-
-const game = {
-  activeMode: "addition",
-  levelIndex: 0,
-  current: null,
-  questionQueue: [],
-  typedAnswer: "",
-  stars: 0,
-  streak: 0,
-  correctInLevel: 0,
-  totalCorrect: 0,
-  autoAdvanceId: null,
-  finished: false,
-};
-
-function currentMode() {
-  return modes[game.activeMode];
-}
-
-function currentLevel() {
-  return currentMode().levels[game.levelIndex];
+  return game.worldStats[worldId];
 }
 
 function clearAutoAdvance() {
@@ -483,6 +303,164 @@ function clearAutoAdvance() {
     window.clearTimeout(game.autoAdvanceId);
     game.autoAdvanceId = null;
   }
+}
+
+function audioCtx() {
+  if (!game.audioContext) {
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (AudioCtor) {
+      game.audioContext = new AudioCtor();
+    }
+  }
+  return game.audioContext;
+}
+
+function playTones(notes) {
+  const ctx = audioCtx();
+  if (!ctx) {
+    return;
+  }
+  if (ctx.state === "suspended") {
+    ctx.resume();
+  }
+  const now = ctx.currentTime;
+  notes.forEach((note, index) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = note.freq;
+    gain.gain.setValueAtTime(0.0001, now + index * note.len);
+    gain.gain.exponentialRampToValueAtTime(note.gain || 0.06, now + index * note.len + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * note.len + note.len);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now + index * note.len);
+    osc.stop(now + index * note.len + note.len);
+  });
+}
+
+function playSound(type) {
+  if (type === "correct") {
+    playTones([
+      { freq: 523, len: 0.12 },
+      { freq: 659, len: 0.12 },
+      { freq: 784, len: 0.18, gain: 0.08 },
+    ]);
+  } else if (type === "wrong") {
+    playTones([
+      { freq: 330, len: 0.14, gain: 0.05 },
+      { freq: 262, len: 0.18, gain: 0.05 },
+    ]);
+  } else if (type === "unlock") {
+    playTones([
+      { freq: 440, len: 0.1 },
+      { freq: 587, len: 0.1 },
+      { freq: 784, len: 0.2, gain: 0.08 },
+    ]);
+  } else if (type === "tap") {
+    playTones([{ freq: 660, len: 0.08, gain: 0.04 }]);
+  }
+}
+
+function buildMathQueue(kind, minSum, maxSum, minA, maxA, minB, maxB) {
+  const queue = [];
+  for (let a = minA; a <= maxA; a += 1) {
+    for (let b = minB; b <= maxB; b += 1) {
+      const total = a + b;
+      if (total < minSum || total > maxSum) {
+        continue;
+      }
+      const scene = randomItem(ADDITION_SCENES);
+      queue.push({
+        type: kind,
+        a,
+        b,
+        total,
+        answer: kind === "missing" ? b : total,
+        scene,
+      });
+    }
+  }
+  return shuffle(queue).slice(0, QUESTIONS_PER_WORLD);
+}
+
+function buildDragQueue() {
+  const queue = [];
+  for (let i = 0; i < QUESTIONS_PER_WORLD; i += 1) {
+    const firstCount = randomInt(1, 4);
+    const secondCount = randomInt(1, 4);
+    const scene = randomItem(ADDITION_SCENES);
+    const tokens = [];
+    for (let n = 0; n < firstCount; n += 1) {
+      tokens.push({ id: `a-${i}-${n}`, emoji: scene.tokenA });
+    }
+    for (let n = 0; n < secondCount; n += 1) {
+      tokens.push({ id: `b-${i}-${n}`, emoji: scene.tokenB });
+    }
+    queue.push({
+      type: "drag",
+      firstCount,
+      secondCount,
+      total: firstCount + secondCount,
+      answer: firstCount + secondCount,
+      scene,
+      tokens: shuffle(tokens),
+    });
+  }
+  return queue;
+}
+
+function buildMissingLetterQueue(words) {
+  return shuffle(words).slice(0, QUESTIONS_PER_WORLD).map((entry) => {
+    const missingIndex = randomInt(0, entry.word.length - 1);
+    const letters = entry.word.toUpperCase().split("");
+    const answer = letters[missingIndex];
+    letters[missingIndex] = "_";
+    const slotName = ["first", "middle", "last"][missingIndex];
+    return {
+      type: "missing-letter",
+      word: entry.word.toUpperCase(),
+      promptWord: letters.join(""),
+      answer,
+      image: entry.image,
+      clue: entry.clue,
+      hint: entry.hint,
+      slotName,
+    };
+  });
+}
+
+function buildChoiceLetters(answer) {
+  const options = new Set([answer]);
+  while (options.size < 3) {
+    options.add(randomItem(LETTER_KEYS));
+  }
+  return shuffle([...options]);
+}
+
+function buildSoundQueue(words) {
+  return shuffle(words).slice(0, QUESTIONS_PER_WORLD).map((entry) => ({
+    type: "sound-match",
+    word: entry.word.toUpperCase(),
+    image: entry.image,
+    clue: entry.clue,
+    answer: entry.word[0].toUpperCase(),
+    choices: buildChoiceLetters(entry.word[0].toUpperCase()),
+  }));
+}
+
+function buildMixedReadingQueue(words) {
+  const shuffled = shuffle(words).slice(0, QUESTIONS_PER_WORLD);
+  return shuffled.map((entry, index) => {
+    if (index % 2 === 0) {
+      return buildMissingLetterQueue([entry])[0];
+    }
+    return buildSoundQueue([entry])[0];
+  });
+}
+
+function isWorldUnlocked(world) {
+  return game.stars >= world.unlockStars;
 }
 
 function setFeedback(message, tone = "") {
@@ -493,12 +471,28 @@ function setFeedback(message, tone = "") {
   }
 }
 
+function updatePathMarks() {
+  pathMarks.textContent = "";
+  for (let i = 0; i < QUESTIONS_PER_WORLD; i += 1) {
+    const mark = document.createElement("div");
+    mark.className = "path-mark";
+    if (i < game.correct) {
+      mark.classList.add("is-done");
+    }
+    pathMarks.appendChild(mark);
+  }
+}
+
+function updateRunnerPosition() {
+  runnerRabbit.style.setProperty("--rabbit-progress", String(game.correct / QUESTIONS_PER_WORLD));
+}
+
 function renderRewardShelf() {
   rewardShelf.textContent = "";
-  LEVEL_MILESTONES.forEach((milestone, index) => {
+  QUEST_STEPS.forEach((milestone, index) => {
     const orb = document.createElement("div");
     orb.className = "reward-orb";
-    if (game.correctInLevel >= milestone) {
+    if (game.correct >= milestone) {
       orb.classList.add("is-on");
     }
     orb.textContent = ["🎁", "🏅", "👑"][index];
@@ -507,273 +501,441 @@ function renderRewardShelf() {
 }
 
 function renderMission() {
-  const nextMilestone = LEVEL_MILESTONES.find((milestone) => game.correctInLevel < milestone);
-  if (!nextMilestone) {
-    missionTitle.textContent = "Prize shelf complete";
-    missionText.textContent = "All three mini rewards are glowing. Finish the level to unlock the big prize.";
+  const nextGoal = QUEST_STEPS.find((milestone) => game.correct < milestone);
+  if (!game.currentWorldId) {
+    missionTitle.textContent = "World rewards";
+    missionText.textContent = "Each finished world unlocks stars, prizes, and a new adventure.";
     renderRewardShelf();
     return;
   }
-
-  missionTitle.textContent = `Reach ${nextMilestone} correct answers`;
-  missionText.textContent = `Current streak: ${game.streak}. The next shelf reward lights up at ${nextMilestone}.`;
+  if (!nextGoal) {
+    missionTitle.textContent = "Quest shelf complete";
+    missionText.textContent = "All mini rewards are glowing. Finish the world for the big prize.";
+    renderRewardShelf();
+    return;
+  }
+  missionTitle.textContent = `Reach ${nextGoal} correct answers`;
+  missionText.textContent = `Current streak: ${game.streak}. Keep going to light the next reward tile.`;
   renderRewardShelf();
 }
 
-function showSurprise(type) {
-  const level = currentLevel();
-  if (type === "level-complete") {
-    surpriseEmoji.textContent = "🏆";
-    surpriseTitle.textContent = `${level.reward} unlocked!`;
-    surpriseText.textContent = `${level.character} brought ${level.reward} for finishing ${level.name}.`;
-  } else if (type === "game-complete") {
-    surpriseEmoji.textContent = "🌟";
-    surpriseTitle.textContent =
-      game.activeMode === "addition" ? "All five stages are complete!" : "All picture stages are complete!";
-    surpriseText.textContent =
-      game.activeMode === "addition"
-        ? "Isha finished every addition level and collected every stage reward."
-        : "Isha finished every missing-letter stage and collected every reading reward.";
-  } else {
-    surpriseEmoji.textContent = level.surprise.emoji;
-    surpriseTitle.textContent = level.surprise.title;
-    surpriseText.textContent = level.surprise.text;
-  }
-
-  document.body.classList.remove("celebrate");
-  window.setTimeout(() => {
-    document.body.classList.add("celebrate");
-  }, 0);
-}
-
-function updatePathMarks() {
-  pathMarks.textContent = "";
-  for (let i = 0; i < QUESTIONS_PER_LEVEL; i += 1) {
-    const mark = document.createElement("div");
-    mark.className = "path-mark";
-    if (i < game.correctInLevel) {
-      mark.classList.add("is-done");
-    }
-    pathMarks.appendChild(mark);
-  }
-}
-
-function updateRunnerPosition() {
-  const progress = game.correctInLevel / QUESTIONS_PER_LEVEL;
-  runnerRabbit.style.setProperty("--rabbit-progress", String(progress));
-}
-
 function renderTopCopy() {
-  const mode = currentMode();
-  const theme = mode.theme;
-  document.body.dataset.mode = game.activeMode;
+  const theme = modeThemes[game.mode];
+  document.body.dataset.mode = game.mode;
   heroEyebrow.textContent = theme.eyebrow;
   gameTitle.textContent = theme.title;
   gameIntro.textContent = theme.intro;
   heroTagOne.textContent = theme.tags[0];
   heroTagTwo.textContent = theme.tags[1];
   heroTagThree.textContent = theme.tags[2];
-  questionTag.textContent = theme.questionTag;
+  homeViewText.textContent = theme.homeText;
 
-  additionModeButton.classList.toggle("is-active", game.activeMode === "addition");
-  wordModeButton.classList.toggle("is-active", game.activeMode === "word");
+  additionModeButton.classList.toggle("is-active", game.mode === "math");
+  wordModeButton.classList.toggle("is-active", game.mode === "reading");
 }
 
-function renderTopCards() {
-  const mode = currentMode();
-  const level = currentLevel();
-  stageName.textContent = level.name;
-  stagePrompt.textContent = level.prompt;
-  rewardChip.textContent = `Reward: ${level.reward}`;
-  characterChip.textContent = `Character: ${level.character}`;
-  mapEyebrow.textContent = level.mapEyebrow;
-  mapTitle.textContent = level.mapTitle;
-  mapText.textContent = level.mapText;
-  runnerRabbit.textContent = level.runnerEmoji;
-  goalCarrot.textContent = level.goalEmoji;
-  levelLabel.textContent = String(game.levelIndex + 1);
-  questionCountLabel.textContent = `${Math.min(game.correctInLevel + 1, QUESTIONS_PER_LEVEL)}/${QUESTIONS_PER_LEVEL}`;
-  if (game.finished) {
-    questionCountLabel.textContent = `${QUESTIONS_PER_LEVEL}/${QUESTIONS_PER_LEVEL}`;
+function renderMapAndStatus() {
+  const world = getCurrentWorld();
+  if (world) {
+    stageName.textContent = world.title;
+    stagePrompt.textContent = world.subtitle;
+    rewardChip.textContent = `Reward: ${world.reward}`;
+    characterChip.textContent = `Guide: ${world.character}`;
+    mapEyebrow.textContent = world.mapEyebrow;
+    mapTitle.textContent = world.mapTitle;
+    mapText.textContent = world.mapText;
+    runnerRabbit.textContent = world.runnerEmoji;
+    goalCarrot.textContent = world.goalEmoji;
+    levelLabel.textContent = String(world.index);
+    questionCountLabel.textContent = `${Math.min(game.correct + 1, QUESTIONS_PER_WORLD)}/${QUESTIONS_PER_WORLD}`;
+    progressLabel.textContent = `${game.correct} of ${QUESTIONS_PER_WORLD} right`;
+    progressSubtext.textContent = "Finish 10 rounds to complete this world and unlock more stars.";
+  } else {
+    stageName.textContent = game.mode === "math" ? "Math Quest Worlds" : "Reading Safari Worlds";
+    stagePrompt.textContent = "Choose a world from the map to start playing.";
+    rewardChip.textContent = "Reward: New world unlock";
+    characterChip.textContent = "Guide: Isha";
+    mapEyebrow.textContent = "World map";
+    mapTitle.textContent = game.mode === "math" ? "Math worlds" : "Reading worlds";
+    mapText.textContent = "Pick a world, earn stars, and unlock the next challenge.";
+    runnerRabbit.textContent = game.mode === "math" ? "🚀" : "🦓";
+    goalCarrot.textContent = game.mode === "math" ? "🏆" : "👑";
+    levelLabel.textContent = "-";
+    questionCountLabel.textContent = "0/10";
+    progressLabel.textContent = "Choose a world";
+    progressSubtext.textContent = "Stars open locked worlds.";
   }
+
   starCount.textContent = String(game.stars);
   streakCount.textContent = String(game.streak);
-  progressLabel.textContent = `${game.correctInLevel} of ${QUESTIONS_PER_LEVEL} right`;
-  progressSubtext.textContent =
-    game.levelIndex === mode.levels.length - 1 ? mode.theme.progressFinal : mode.theme.progressDefault;
+  updatePathMarks();
+  updateRunnerPosition();
 }
 
-function buildInputGrid() {
-  const mode = currentMode();
+function renderHome() {
+  homeView.classList.remove("is-hidden");
+  playView.classList.add("is-hidden");
+  worldGrid.textContent = "";
+
+  getModeWorlds().forEach((world) => {
+    const stats = ensureWorldStats(world.id);
+    const unlocked = isWorldUnlocked(world);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "world-card";
+    if (!unlocked) {
+      card.classList.add("is-locked");
+    }
+    card.dataset.worldId = world.id;
+    card.innerHTML = `
+      <div class="world-card-top">
+        <span class="world-icon">${world.icon}</span>
+        <span class="world-lock">${unlocked ? "Open" : `${world.unlockStars}⭐`}</span>
+      </div>
+      <div>
+        <h3>${world.title}</h3>
+        <p>${world.subtitle}</p>
+      </div>
+      <div class="world-card-bottom">
+        <span class="world-stars">${stats.completed ? "Completed" : `Best ${stats.best}/10`}</span>
+        <span>${world.reward}</span>
+      </div>
+    `;
+    worldGrid.appendChild(card);
+  });
+
+  renderTopCopy();
+  renderMapAndStatus();
+  renderMission();
+}
+
+function renderPicture(question) {
+  if (question.image) {
+    pictureCard.classList.remove("is-hidden");
+    pictureArt.textContent = question.image;
+    pictureWord.textContent = question.promptWord || question.word || "";
+    pictureHint.textContent = question.hint || question.clue || "";
+    return;
+  }
+  pictureCard.classList.add("is-hidden");
+}
+
+function renderDragBoard(question) {
+  if (question.type !== "drag") {
+    dragBoard.classList.add("is-hidden");
+    return;
+  }
+
+  dragBoard.classList.remove("is-hidden");
+  dragSource.textContent = "";
+  question.tokens.forEach((token) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "drag-token";
+    button.draggable = true;
+    button.dataset.tokenId = token.id;
+    button.textContent = token.emoji;
+    if (game.movedTokenIds.has(token.id)) {
+      button.classList.add("is-moved");
+    }
+    dragSource.appendChild(button);
+  });
+  dropZoneLabel.textContent = question.scene.container;
+  dropZoneCount.textContent = String(game.movedTokenIds.size);
+}
+
+function buildInputGrid(question) {
   inputGrid.textContent = "";
   inputGrid.className = "digit-grid";
 
-  if (mode.inputType === "digits") {
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].forEach((key) => {
-      const keyEl = document.createElement("div");
-      keyEl.className = "digit-key";
-      if (key === "0") {
-        keyEl.classList.add("digit-key-wide");
-      }
-      keyEl.textContent = key;
-      inputGrid.appendChild(keyEl);
+  if (question.type === "sound-match") {
+    inputGrid.classList.add("is-choice-grid");
+    question.choices.forEach((choice) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "digit-key";
+      button.textContent = choice;
+      button.dataset.choice = choice;
+      inputGrid.appendChild(button);
     });
     return;
   }
 
-  inputGrid.classList.add("is-letter-grid");
-  LETTER_KEYS.forEach((key) => {
-    const keyEl = document.createElement("div");
-    keyEl.className = "digit-key";
-    keyEl.textContent = key;
-    inputGrid.appendChild(keyEl);
+  if (question.type === "drag") {
+    inputGrid.classList.add("is-hidden");
+    return;
+  }
+
+  if (question.type === "missing-letter") {
+    inputGrid.classList.add("is-letter-grid");
+    LETTER_KEYS.forEach((key) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "digit-key";
+      button.textContent = key;
+      inputGrid.appendChild(button);
+    });
+    return;
+  }
+
+  ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].forEach((key) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "digit-key";
+    if (key === "0") {
+      button.classList.add("digit-key-wide");
+    }
+    button.textContent = key;
+    inputGrid.appendChild(button);
   });
 }
 
 function renderQuestion() {
-  currentMode().renderQuestion(game.current, game.typedAnswer);
+  const world = getCurrentWorld();
+  const question = game.currentQuestion;
+  if (!world || !question) {
+    return;
+  }
+
+  questionTag.textContent = world.questionTag;
+  questionHelp.textContent = world.promptText;
+  renderPicture(question);
+
+  if (question.type === "total") {
+    questionPrompt.textContent = `${question.a} + ${question.b} = ?`;
+    firstGroupText.textContent = `${question.a} ${question.scene.first}`;
+    secondGroupText.textContent = `${question.b} ${question.scene.second}`;
+    answerDisplay.textContent = game.typedAnswer === "" ? "Type the answer" : game.typedAnswer;
+  } else if (question.type === "missing") {
+    questionPrompt.textContent = `${question.a} + ? = ${question.total}`;
+    firstGroupText.textContent = `${question.a} ${question.scene.first}`;
+    secondGroupText.textContent = `Find the missing ${question.scene.second}`;
+    answerDisplay.textContent = game.typedAnswer === "" ? "Type the answer" : game.typedAnswer;
+  } else if (question.type === "drag") {
+    questionPrompt.textContent = `Drag ${question.firstCount} ${question.scene.first} and ${question.secondCount} ${question.scene.second}`;
+    firstGroupText.textContent = `Count all the treasures together`;
+    secondGroupText.textContent = `Move every token into the ${question.scene.container.toLowerCase()}`;
+    answerDisplay.textContent = `${game.movedTokenIds.size} moved`;
+  } else if (question.type === "missing-letter") {
+    questionPrompt.textContent = `Which ${question.slotName} letter makes ${question.promptWord}?`;
+    firstGroupText.textContent = `Word puzzle: ${question.promptWord}`;
+    secondGroupText.textContent = `Clue: ${question.clue}`;
+    answerDisplay.textContent = game.typedAnswer === "" ? "Type one letter" : game.typedAnswer;
+  } else if (question.type === "sound-match") {
+    questionPrompt.textContent = `Which letter starts ${question.word}?`;
+    firstGroupText.textContent = `Picture word: ${question.word}`;
+    secondGroupText.textContent = `Clue: ${question.clue}`;
+    answerDisplay.textContent = game.typedAnswer === "" ? "Tap a letter" : game.typedAnswer;
+  }
+
+  renderDragBoard(question);
+  buildInputGrid(question);
 }
 
-function renderAll() {
+function renderPlay() {
+  homeView.classList.add("is-hidden");
+  playView.classList.remove("is-hidden");
   renderTopCopy();
-  renderTopCards();
+  renderMapAndStatus();
   renderQuestion();
-  buildInputGrid();
-  updatePathMarks();
-  updateRunnerPosition();
   renderMission();
 }
 
-function makeLevelQuestion() {
-  const mode = currentMode();
-  return mode.createQuestion(currentLevel(), game.questionQueue);
+function showSurprise(type) {
+  const world = getCurrentWorld();
+  if (type === "correct" && world) {
+    surpriseEmoji.textContent = world.icon;
+    surpriseTitle.textContent = `${world.character} cheered!`;
+    surpriseText.textContent = `That answer moved Isha one step closer to ${world.reward}.`;
+  } else if (type === "world-complete" && world) {
+    surpriseEmoji.textContent = "🏆";
+    surpriseTitle.textContent = `${world.reward} unlocked!`;
+    surpriseText.textContent = `${world.character} brought a new reward for finishing ${world.title}.`;
+  } else {
+    surpriseEmoji.textContent = "🌟";
+    surpriseTitle.textContent = "A shiny star is waiting.";
+    surpriseText.textContent = "Every right answer moves the guide up the path.";
+  }
+
+  document.body.classList.remove("celebrate");
+  window.setTimeout(() => document.body.classList.add("celebrate"), 0);
 }
 
 function nextQuestion() {
   clearAutoAdvance();
-  if (game.finished) {
+  if (!game.currentWorldId || game.finished) {
     return;
   }
-  if (game.questionQueue.length === 0) {
-    game.questionQueue = currentMode().createQueue(currentLevel());
-  }
-  game.current = makeLevelQuestion();
-  game.typedAnswer = "";
-  setFeedback(currentMode().theme.readyMessage);
-  renderAll();
-}
-
-function clearAnswer() {
-  if (game.finished) {
-    return;
-  }
-  game.typedAnswer = "";
-  answerDisplay.textContent = currentMode().theme.placeholder;
-  setFeedback(currentMode().theme.clearMessage);
-}
-
-function appendInput(value) {
-  const mode = currentMode();
-  if (game.finished || game.typedAnswer.length >= mode.maxInputLength) {
-    return;
-  }
-
-  if (mode.inputType === "digits") {
-    if (game.typedAnswer === "0") {
-      game.typedAnswer = value;
-    } else {
-      game.typedAnswer += value;
-    }
-  } else {
-    game.typedAnswer = value.toUpperCase();
-  }
-
-  answerDisplay.textContent = game.typedAnswer;
-}
-
-function goToNextLevel() {
-  const mode = currentMode();
-  if (game.levelIndex === mode.levels.length - 1) {
+  if (game.queue.length === 0) {
     game.finished = true;
-    showSurprise("game-complete");
-    setFeedback(mode.theme.finishedMessage, "is-success");
-    renderAll();
+    const world = getCurrentWorld();
+    ensureWorldStats(world.id).completed = true;
+    showSurprise("world-complete");
+    playSound("unlock");
+    setFeedback(`World complete. ${world.reward} is unlocked.`, "is-success");
+    renderPlay();
     return;
   }
 
-  game.levelIndex += 1;
-  game.correctInLevel = 0;
-  game.questionQueue = currentMode().createQueue(currentLevel());
-  showSurprise("level-complete");
-  setFeedback(`Level ${game.levelIndex} finished. Now starting level ${game.levelIndex + 1}.`, "is-success");
-  game.autoAdvanceId = window.setTimeout(() => {
-    nextQuestion();
-  }, 1700);
-  renderAll();
-}
-
-function checkAnswer() {
-  if (game.finished) {
-    return;
-  }
-
-  if (game.typedAnswer === "") {
-    setFeedback(currentMode().theme.emptyMessage, "is-try");
-    return;
-  }
-
-  if (currentMode().isCorrect(game.current, game.typedAnswer)) {
-    clearAutoAdvance();
-    game.stars += 1;
-    game.streak += 1;
-    game.correctInLevel += 1;
-    game.totalCorrect += 1;
-    showSurprise("correct");
-    setFeedback(currentMode().successMessage(game.current), "is-success");
-    renderAll();
-
-    if (game.correctInLevel >= QUESTIONS_PER_LEVEL) {
-      game.autoAdvanceId = window.setTimeout(() => {
-        goToNextLevel();
-      }, 1500);
-      return;
-    }
-
-    game.autoAdvanceId = window.setTimeout(() => {
-      nextQuestion();
-    }, 1400);
-    return;
-  }
-
-  game.streak = 0;
-  setFeedback(currentMode().theme.retryMessage, "is-try");
-  renderMission();
-}
-
-function resetMode(modeName) {
-  clearAutoAdvance();
-  game.activeMode = modeName;
-  game.levelIndex = 0;
-  game.current = null;
-  game.questionQueue = currentMode().createQueue(currentLevel());
+  game.currentQuestion = game.queue.shift();
   game.typedAnswer = "";
-  game.stars = 0;
+  game.movedTokenIds = new Set();
+  setFeedback("New round ready.");
+  renderPlay();
+}
+
+function startWorld(worldId) {
+  const world = getModeWorlds().find((entry) => entry.id === worldId);
+  if (!world || !isWorldUnlocked(world)) {
+    setFeedback(`Earn ${world ? world.unlockStars : 0} stars to unlock that world.`, "is-try");
+    renderHome();
+    return;
+  }
+
+  clearAutoAdvance();
+  game.currentWorldId = worldId;
+  game.currentQuestion = null;
+  game.queue = world.makeQueue();
+  game.typedAnswer = "";
   game.streak = 0;
-  game.correctInLevel = 0;
-  game.totalCorrect = 0;
+  game.correct = 0;
   game.finished = false;
   nextQuestion();
 }
 
-function handleKeydown(event) {
-  const mode = currentMode();
+function goHome() {
+  clearAutoAdvance();
+  game.currentWorldId = null;
+  game.currentQuestion = null;
+  game.queue = [];
+  game.typedAnswer = "";
+  game.streak = 0;
+  game.correct = 0;
+  game.finished = false;
+  showSurprise("idle");
+  renderHome();
+}
 
-  if (mode.inputType === "digits" && event.key >= "0" && event.key <= "9") {
+function switchMode(mode) {
+  game.mode = mode;
+  goHome();
+}
+
+function clearAnswer() {
+  if (!game.currentQuestion) {
+    return;
+  }
+  game.typedAnswer = "";
+  if (game.currentQuestion.type === "drag") {
+    game.movedTokenIds = new Set();
+  }
+  renderPlay();
+  setFeedback("Cleared.");
+}
+
+function appendInput(value) {
+  const question = game.currentQuestion;
+  if (!question) {
+    return;
+  }
+
+  if (question.type === "missing-letter" || question.type === "sound-match") {
+    game.typedAnswer = value.toUpperCase();
+  } else if (question.type === "total" || question.type === "missing") {
+    if (game.typedAnswer.length >= 2) {
+      return;
+    }
+    game.typedAnswer += value;
+  }
+  playSound("tap");
+  renderQuestion();
+}
+
+function isCorrectAnswer() {
+  const question = game.currentQuestion;
+  if (!question) {
+    return false;
+  }
+
+  if (question.type === "drag") {
+    return game.movedTokenIds.size === question.answer;
+  }
+  if (question.type === "missing-letter" || question.type === "sound-match") {
+    return game.typedAnswer.toUpperCase() === question.answer;
+  }
+  return Number(game.typedAnswer) === question.answer;
+}
+
+function successMessage(question) {
+  if (question.type === "total") {
+    return `Yes! ${question.a} + ${question.b} = ${question.total}.`;
+  }
+  if (question.type === "missing") {
+    return `Yes! ${question.a} + ${question.answer} = ${question.total}.`;
+  }
+  if (question.type === "drag") {
+    return `Great counting. ${question.firstCount} plus ${question.secondCount} makes ${question.total}.`;
+  }
+  if (question.type === "missing-letter") {
+    return `Yes! ${question.word} uses ${question.answer} in the ${question.slotName} spot.`;
+  }
+  return `Yes! ${question.word} starts with ${question.answer}.`;
+}
+
+function checkAnswer() {
+  const question = game.currentQuestion;
+  if (!question || game.finished) {
+    return;
+  }
+
+  if (question.type !== "drag" && game.typedAnswer === "") {
+    setFeedback("Pick an answer first.", "is-try");
+    return;
+  }
+
+  if (isCorrectAnswer()) {
+    game.correct += 1;
+    game.streak += 1;
+    game.stars += 1;
+    ensureWorldStats(game.currentWorldId).best = Math.max(
+      ensureWorldStats(game.currentWorldId).best,
+      game.correct
+    );
+    playSound("correct");
+    showSurprise("correct");
+    setFeedback(successMessage(question), "is-success");
+    renderPlay();
+    game.autoAdvanceId = window.setTimeout(nextQuestion, 1200);
+    return;
+  }
+
+  game.streak = 0;
+  playSound("wrong");
+  setFeedback("Close one. Try again.", "is-try");
+  renderPlay();
+}
+
+function moveToken(tokenId) {
+  if (!game.currentQuestion || game.currentQuestion.type !== "drag") {
+    return;
+  }
+  game.movedTokenIds.add(tokenId);
+  playSound("tap");
+  renderQuestion();
+}
+
+function handleKeydown(event) {
+  const question = game.currentQuestion;
+  if (!question || homeView.classList.contains("is-hidden") === false) {
+    return;
+  }
+
+  if ((question.type === "total" || question.type === "missing") && event.key >= "0" && event.key <= "9") {
     appendInput(event.key);
     return;
   }
 
-  if (mode.inputType === "letters" && /^[a-zA-Z]$/.test(event.key)) {
+  if ((question.type === "missing-letter" || question.type === "sound-match") && /^[a-zA-Z]$/.test(event.key)) {
     appendInput(event.key);
     return;
   }
@@ -786,35 +948,64 @@ function handleKeydown(event) {
 
   if (event.key === "Backspace") {
     event.preventDefault();
-    if (game.finished) {
-      return;
-    }
-    if (mode.inputType === "digits") {
+    if (question.type === "total" || question.type === "missing") {
       game.typedAnswer = game.typedAnswer.slice(0, -1);
     } else {
       game.typedAnswer = "";
     }
-    answerDisplay.textContent = game.typedAnswer === "" ? mode.theme.placeholder : game.typedAnswer;
+    renderQuestion();
     return;
-  }
-
-  if (event.key === "n" || event.key === "N") {
-    nextQuestion();
   }
 }
 
-checkAnswerButton.addEventListener("click", checkAnswer);
-newQuestionButton.addEventListener("click", nextQuestion);
-clearAnswerButton.addEventListener("click", clearAnswer);
-additionModeButton.addEventListener("click", () => resetMode("addition"));
-wordModeButton.addEventListener("click", () => resetMode("word"));
+worldGrid.addEventListener("click", (event) => {
+  const card = event.target.closest(".world-card");
+  if (!card) {
+    return;
+  }
+  startWorld(card.dataset.worldId);
+});
+
 inputGrid.addEventListener("click", (event) => {
   const key = event.target.closest(".digit-key");
   if (!key) {
     return;
   }
-  appendInput(key.textContent.trim());
+  appendInput((key.dataset.choice || key.textContent).trim());
 });
-window.addEventListener("keydown", handleKeydown);
 
-nextQuestion();
+dragSource.addEventListener("click", (event) => {
+  const token = event.target.closest(".drag-token");
+  if (!token) {
+    return;
+  }
+  moveToken(token.dataset.tokenId);
+});
+
+dragSource.addEventListener("dragstart", (event) => {
+  const token = event.target.closest(".drag-token");
+  if (!token) {
+    return;
+  }
+  event.dataTransfer.setData("text/plain", token.dataset.tokenId);
+});
+
+dropZone.addEventListener("dragover", (event) => {
+  event.preventDefault();
+});
+
+dropZone.addEventListener("drop", (event) => {
+  event.preventDefault();
+  moveToken(event.dataTransfer.getData("text/plain"));
+});
+
+checkAnswerButton.addEventListener("click", checkAnswer);
+newQuestionButton.addEventListener("click", nextQuestion);
+clearAnswerButton.addEventListener("click", clearAnswer);
+additionModeButton.addEventListener("click", () => switchMode("math"));
+wordModeButton.addEventListener("click", () => switchMode("reading"));
+homeButton.addEventListener("click", goHome);
+window.addEventListener("keydown", handleKeydown);
+window.addEventListener("pointerdown", () => audioCtx(), { once: true });
+
+renderHome();
