@@ -1,0 +1,24 @@
+{
+  "name": "new-project",
+  "version": "1.0.0",
+  "description": "Static math game prepared for GitHub Pages.",
+  "main": "game.js",
+  "scripts": {
+    "test": "node playwright-smoke.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/subramanians/kidsgames.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/subramanians/kidsgames/issues"
+  },
+  "homepage": "https://github.com/subramanians/kidsgames#readme",
+  "devDependencies": {
+    "playwright": "^1.58.2"
+  }
+}
