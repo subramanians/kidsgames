@@ -739,6 +739,32 @@ function renderPlay() {
   renderMapAndStatus();
   renderQuestion();
   renderMission();
+  renderControls();
+}
+
+function renderControls() {
+  const question = game.currentQuestion;
+  if (!question) {
+    checkAnswerButton.disabled = true;
+    clearAnswerButton.disabled = true;
+    newQuestionButton.textContent = "Start";
+    return;
+  }
+
+  checkAnswerButton.disabled = false;
+  clearAnswerButton.disabled = false;
+  newQuestionButton.textContent = game.finished ? "Play Again" : "New Question";
+
+  if (question.type === "sound-match") {
+    checkAnswerButton.textContent = "Check Choice";
+    clearAnswerButton.textContent = "Clear Choice";
+  } else if (question.type === "drag") {
+    checkAnswerButton.textContent = "Count It";
+    clearAnswerButton.textContent = "Reset Drag";
+  } else {
+    checkAnswerButton.textContent = "Check";
+    clearAnswerButton.textContent = "Clear";
+  }
 }
 
 function showSurprise(type) {
@@ -774,6 +800,9 @@ function nextQuestion() {
     playSound("unlock");
     setFeedback(`World complete. ${world.reward} is unlocked.`, "is-success");
     renderPlay();
+    game.autoAdvanceId = window.setTimeout(() => {
+      goHome();
+    }, 1800);
     return;
   }
 
@@ -849,6 +878,13 @@ function appendInput(value) {
   }
   playSound("tap");
   renderQuestion();
+  renderControls();
+
+  if (question.type === "sound-match") {
+    window.setTimeout(() => {
+      checkAnswer();
+    }, 120);
+  }
 }
 
 function isCorrectAnswer() {
@@ -922,6 +958,9 @@ function moveToken(tokenId) {
   game.movedTokenIds.add(tokenId);
   playSound("tap");
   renderQuestion();
+  if (game.movedTokenIds.size === game.currentQuestion.answer) {
+    setFeedback("All treasures moved. Tap Count It.", "is-success");
+  }
 }
 
 function handleKeydown(event) {
@@ -1000,7 +1039,13 @@ dropZone.addEventListener("drop", (event) => {
 });
 
 checkAnswerButton.addEventListener("click", checkAnswer);
-newQuestionButton.addEventListener("click", nextQuestion);
+newQuestionButton.addEventListener("click", () => {
+  if (game.finished && game.currentWorldId) {
+    startWorld(game.currentWorldId);
+    return;
+  }
+  nextQuestion();
+});
 clearAnswerButton.addEventListener("click", clearAnswer);
 additionModeButton.addEventListener("click", () => switchMode("math"));
 wordModeButton.addEventListener("click", () => switchMode("reading"));
@@ -1009,3 +1054,4 @@ window.addEventListener("keydown", handleKeydown);
 window.addEventListener("pointerdown", () => audioCtx(), { once: true });
 
 renderHome();
+renderControls();
